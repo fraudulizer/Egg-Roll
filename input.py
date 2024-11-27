@@ -67,9 +67,7 @@ def user_input(x, levelmap, moves_left):
         gamestate = levelmap
         Valid = False
     return gamestate, Valid
-    
-
-        
+   
 def check_for_eggs(levelmap):
     for y in levelmap:
         if lev.EGG in y:
