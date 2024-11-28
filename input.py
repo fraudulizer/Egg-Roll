@@ -1,5 +1,8 @@
 import level as lev
 import clear_screen as ot
+import time as time
+
+SLEEP_TIME = 0.1
 
 def to_char_list(input):
     if isinstance(input, str):
@@ -7,62 +10,82 @@ def to_char_list(input):
     else:
         return
 
-def swap(levelmap, y, x, direction):
+def swap(levelmap, direction, points, moves, history):
     if direction == "up":
         dy, dx = -1, 0
+        start_y, start_x, end_y, end_x = 0, 0, len(levelmap) -1, len(levelmap[0])
+        step_y, step_x = 1, 1
     elif direction == "down":
         dy, dx = 1, 0
+        start_y, start_x, end_y, end_x = len(levelmap) -1, 0, 0, len(levelmap[0])
+        step_y, step_x = -1, 1
     elif direction == "left":
         dy, dx = 0, -1
+        start_y, start_x, end_y, end_x = 0, len(levelmap[0]) - 1, len(levelmap), -1
+        step_y, step_x = 1, -1
     elif direction == "right":
         dy, dx = 0, 1
+        start_y, start_x, end_y, end_x = 0, 0, len(levelmap), len(levelmap[0])
+        step_y, step_x = 1, 1
     else:
         dy, dx = 0, 0
+        start_y, start_x, end_y, end_x = 0, 0, 0, 0
+        step_y, step_x = 0, 0
         
-    if y + dy < 0 or y + dy >= len(levelmap) or x + dx < 0 or x + dx >= len(levelmap[y]):
-        return levelmap
-    if levelmap[y+dy][x+dx] == lev.BRICK or levelmap[y-1][x] == lev.DONE:
-        return levelmap
-    elif levelmap[y+dy][x+dx] == lev.EGG:
-        return levelmap
-    elif levelmap[y+dy][x+dx] == lev.PAN:
-        levelmap[y][x] = lev.GREEN
-        return levelmap
-    elif levelmap[y+dy][x+dx] == lev.NEST:
-        levelmap[y+dy][x+dx] = lev.DONE
-        levelmap[y][x] = lev.GREEN
-        return levelmap
-    elif levelmap[y+dy][x+dx] == lev.GREEN:
-        levelmap[y+dy][x+dx] = lev.EGG
-        levelmap[y][x] = lev.GREEN
-        swap(levelmap, y+dy, x+dx, direction)
-    return levelmap
+    store_levelmap = [ [row[:] for row in levelmap] ] 
+    move = []
+    
+    for y in range(start_y, end_y, step_y):
+        row_length = len(levelmap[y])
+        for x in range(start_x, row_length if step_x > 0 else -1, step_x):
+            if levelmap[y][x] == lev.EGG:
+                if y + dy < 0 or y + dy >= len(levelmap) or x + dx < 0 or x + dx >= len(levelmap[y]):
+                    continue
+                elif levelmap[y+dy][x+dx] == lev.BRICK or levelmap[y+dy][x+dx] == lev.DONE:
+                    continue
+                elif levelmap[y+dy][x+dx] == lev.EGG:
+                    continue
+                elif levelmap[y+dy][x+dx] == lev.PAN:
+                    move.append((y, x, lev.GREEN, y+dy, x+dx, lev.PAN))
+                    continue
+                elif levelmap[y+dy][x+dx] == lev.NEST:
+                    move.append((y, x, lev.GREEN, y+dy, x+dx, lev.DONE))
+                    continue
+                elif levelmap[y+dy][x+dx] == lev.GREEN:
+                    levelmap[y][x] = lev.GREEN
+                    move.append((y, x, lev.GREEN, y+dy, x+dx, lev.EGG))
+                                        
+    for y, x, old_state, new_y, new_x, new_state in move:
+        levelmap[y][x] = old_state
+        levelmap[new_y][new_x] = new_state
 
-def user_input(x, levelmap, moves_left):
+    store_levelmap.append([row[:] for row in levelmap])
+    
+    for level in store_levelmap:  
+        ot.clear_screen()  
+        lev.print_level(level, int(points), moves, history)
+        time.sleep(SLEEP_TIME)
+        
+    if len(store_levelmap) > 1 and store_levelmap[-1] == store_levelmap[-2]:
+        levelmap = store_levelmap[-1]
+        return levelmap
+    else:
+        return swap(levelmap, direction, points, moves, history)
+
+
+def user_input(x, levelmap, moves_left, points, moves, history):
     if x == 'F':
-        for y in range(len(levelmap)):
-            for x in range(len(levelmap[y])):
-                if levelmap[y][x] == lev.EGG:
-                     gamestate = swap(levelmap, y, x, "up")
-                     Valid = True
+        gamestate = swap(levelmap,"up", points, moves, history)
+        Valid = True
     elif x == 'B':
-        for y in range(len(levelmap) - 1, -1, -1):
-            for x in range(len(levelmap[y])):
-                if levelmap[y][x] == lev.EGG:
-                     gamestate = swap(levelmap, y, x,  "down")
-                     Valid = True
+        gamestate = swap(levelmap, "down", points, moves, history)
+        Valid = True
     elif x == 'L':
-        for y in range(len(levelmap)):
-            for x in range(len(levelmap[y])):
-                if levelmap[y][x] == lev.EGG:
-                    gamestate = swap(levelmap, y, x, "left")
-                    Valid = True
+        gamestate = swap(levelmap, "left", points, moves, history)
+        Valid = True
     elif x == 'R':
-        for y in range(len(levelmap)):
-            for x in range(len(levelmap[y]) - 1, -1, -1):
-                if levelmap[y][x] == lev.EGG:
-                    gamestate = swap(levelmap, y, x, "right")
-                    Valid = True
+        gamestate = swap(levelmap, "right", points, moves, history)
+        Valid = True
     else:
         gamestate = levelmap
         Valid = False
