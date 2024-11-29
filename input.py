@@ -1,14 +1,8 @@
 import level as lev
-import clear_screen as ot
+import functions as ot
 import time as time
 
 SLEEP_TIME = 0.1
-
-def to_char_list(input):
-    if isinstance(input, str):
-        return list(input)
-    else:
-        return
 
 def swap(levelmap, direction, points, moves, history):
     if direction == "up":
@@ -60,16 +54,15 @@ def swap(levelmap, direction, points, moves, history):
         levelmap[new_y][new_x] = new_state
 
     store_levelmap.append([row[:] for row in levelmap])
-    
-    for level in store_levelmap:  
-        ot.clear_screen()  
-        lev.print_level(level, int(points), moves, history)
-        time.sleep(SLEEP_TIME)
         
-    if len(store_levelmap) > 1 and store_levelmap[-1] == store_levelmap[-2]:
+    if len(store_levelmap) > 1 and store_levelmap[-1] == store_levelmap[-2] or lev.count_for_eggs(store_levelmap[-1]) == 0:
         levelmap = store_levelmap[-1]
         return levelmap
     else:
+        for level in store_levelmap:  
+            ot.clear_screen()  
+            lev.print_level(level, int(points), moves, history)
+            time.sleep(SLEEP_TIME)
         return swap(levelmap, direction, points, moves, history)
 
 
@@ -90,29 +83,3 @@ def user_input(x, levelmap, moves_left, points, moves, history):
         gamestate = levelmap
         Valid = False
     return gamestate, Valid
-   
-def check_for_eggs(levelmap):
-    for y in levelmap:
-        if lev.EGG in y:
-            return True
-    return False
-
-def count_for_eggs(levelmap):
-    egg_count = 0
-    for y in levelmap:
-        for char in y:
-            if char == lev.EGG:
-                egg_count += 1
-            else:
-                egg_count += 0
-    return egg_count
-
-def count_for_done(levelmap):
-    done_count = 0
-    for y in levelmap:
-        for char in y:
-            if char == lev.DONE:
-                done_count += 1
-            else:
-                done_count += 0
-    return done_count
