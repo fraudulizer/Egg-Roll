@@ -1,4 +1,8 @@
 import sys as sys
+import time as time
+import functions as ot
+
+SLEEP_TIME = 0.1
 
 BRICK = "🧱"
 EGG = "🥚"
@@ -23,11 +27,13 @@ def load_level():
     
 
 def print_level(levelmap, points, moves, history):
+    ot.clear_screen()
     for y in levelmap:
         print(''.join(y))
     print("Previous Moves:",  ''.join(history))
     print("Moves Left:", moves)
     print("Points:", points)
+    time.sleep(SLEEP_TIME)
     
 def check_for_eggs(levelmap):
     for y in levelmap:

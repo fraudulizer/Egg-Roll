@@ -11,7 +11,6 @@ def to_char_list(input):
         return list(input)
     else:
         return
-    
-def Clone(list): 
-    list_copy = list
-    return list_copy 
+
+def create_deep_copy(levelmap):
+    return [row[:] for row in levelmap]
