@@ -1,4 +1,4 @@
-# Fraudulizer's Egg Roll
+# Y sub zero's Egg Roll
 
 ## Synopsis
 In this game, you are given a grid of objects. Each object is represented by an emoji on the grid. Your task is to roll the eggs in the grid to a nest in the grid.  
