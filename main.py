@@ -11,25 +11,26 @@ def play_menu():
     
     for file in files:
         print(file, "\n")
-    
+    draw_line()
     print("Input your preferred level's name to play the level. Input \"BACK\" to go back. Case-sensitive.")
-    user_in = input()
-    
-    if user_in in files:
-        print("Input your name to save.")
-        user_name = input()
-        
-        if not user_name.strip():
-            print("Invalid name")
-            user_name = input()
-        else:
-            play_game(user_in, user_name)
-    
-    elif user_in == "back":
-        main_menu()
-    else:
-        print("Invalid Input")
+    while True:
         user_in = input()
+        if user_in in files:
+            print("Input your name to save.")
+            while True:
+                user_name = input()
+                
+                if not user_name.strip():
+                    print("Invalid name.")
+                else:
+                    play_game(user_in, user_name)
+                    break
+            break
+        elif user_in == "BACK":
+            main_menu()
+            break
+        else:
+            print("Invalid Input")
 
 # RESTART LEVEL
 def play_game(user_in, user_name):
@@ -62,20 +63,40 @@ def instructions_menu():
 
 # OPEN SCORES.TXT AND SORT FOR LEADERBOARD
 def leaderboard_menu():
-    print("""LEVEL NAME | SCORE | PLAYER""")
-    scores = []
-    
+    print("""These are the levels with an existing scoreboard. Enter a levels name to check its scoreboard.""")
+    print("""Type in "BACK" to go back.""")
+    draw_line()
+    scores = [] #SCORES FROM FILE
+    groupedbylevel = {} #GROUPS THE SCORES IN A DICTIONARY BY THEIR LEVELNAME
     try:
         with open("files/scores.txt") as file:
             for line in file:
                 user_in, score, user_name = line.strip().split(",")
                 scores.append((user_in, int(score), user_name))
-        
-        sorted_scores = sorted(scores, key=lambda x: (x[0], -x[1]))
-        
-        for score in sorted_scores:
-            print(score, "\n")
-    
+            for score in scores:
+                if score[0] not in groupedbylevel:
+                    groupedbylevel[score[0]] = []
+                groupedbylevel[score[0]].append(score)
+        if groupedbylevel:
+            for key in groupedbylevel.keys():
+                print(key)
+        draw_line()
+        print("""Input your command...""")
+        while True:
+            user_input = input()
+            if user_input in groupedbylevel:
+                sorted_scores = sorted(groupedbylevel[user_input], key=lambda x: (-x[1]))
+                ot.clear_screen()
+                print("""LEVEL NAME | SCORE | PLAYER""")
+                draw_line()
+                for score in sorted_scores:
+                    print(score, "\n")
+                break
+            elif user_input == "BACK":
+                main_menu()
+                break
+            else:
+                print("Invalid")
     except FileNotFoundError:  # IF LEADERBOARD DOESNT EXIST
         print("There is no leaderboard yet.")
     
@@ -96,8 +117,9 @@ def exit_game():
 
 # INPUT BACK IN ALL THE MENUS TO RETURN BACK TO MAIN MENU
 def go_back():
+    draw_line()
+    print("Input \"BACK\" to go back to the main menu.")
     while True:
-        print("Input \"BACK\" to go back.")
         user_in = input().upper()
         
         if user_in == "BACK":
@@ -119,6 +141,7 @@ main_menu_commands = {
 def main_menu():
     ot.clear_screen()
     title_screen()
+    draw_line()
     main_menu_controls()
 
 # ART    
@@ -144,6 +167,10 @@ def main_menu_controls():
             break
         else:
             print("Invalid Input")
+
+# DRAWS A LINE
+def draw_line():
+    print("""----------------------------------------------------""")
 
 # ACTUAL PROGRAM
 def main():
