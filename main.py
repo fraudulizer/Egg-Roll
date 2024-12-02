@@ -107,7 +107,7 @@ def about_menu():
     with open("files/about.txt", encoding='utf-8') as file:
         lines = file.readlines()
         for line in lines:
-            print(line.strip())
+            print(line)
     
     go_back()
 
